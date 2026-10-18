@@ -1,43 +1,41 @@
-// ==========================================
-// ARCHIVO: funciones.js
-// Son las funciones de cálculo del simulador anterior (carpeta simulador).
-// Aquí solo hay matemática: reciben números y devuelven números.
-// Ninguna toca el HTML; eso lo hace simulador_completo.js.
-// ==========================================
+// ============================================================
+// funciones.js  –  cálculos del crédito (solo matemática, no toca el HTML)
+// ÍNDICE: calcularDisponible, calcularCapacidadPago, calcularInteresSimple,
+//         calcularTotalPagar, calcularCuotaMensual, aprobarCredito
+// Las llama calcularCredito() en simulador_completo.js
+// ============================================================
 
-// Calcula cuánto dinero me sobra a fin de mes (ingresos - egresos)
+// Disponible = ingresos - egresos (si sale negativo, retorna 0)
 function calcularDisponible(ingresos, egresos) {
     let disponible = ingresos - egresos;
-    // Si gasta más de lo que gana, el disponible no puede ser negativo: devuelvo 0
     return disponible < 0 ? 0 : disponible;
 }
 
-// La capacidad de pago es el 50% de lo disponible
-// (el taller pide el 50%; en la carpeta simulador tenía 0.30 por error, aquí lo corregí)
+// Capacidad de pago = 50% del disponible.
+// CAMBIAR AQUÍ: el porcentaje (0.50).
 function calcularCapacidadPago(montoDisponible) {
     return montoDisponible * 0.50;
 }
 
 // Interés simple = años x monto x (tasa / 100)
 function calcularInteresSimple(monto, tasa, plazoAnios) {
-    // divido la tasa para 100 porque 10 significa 10% = 0.10
     return plazoAnios * monto * (tasa / 100);
 }
 
-// Total a pagar = monto + interés + USD 100 fijos (impuestos y SOLCA)
+// Total a pagar = monto + interés + 100 fijos (impuestos y SOLCA).
+// CAMBIAR AQUÍ: el cargo fijo de 100.
 function calcularTotalPagar(monto, interes) {
     return monto + interes + 100;
 }
 
-// Cuota mensual = total / número de meses
+// Cuota mensual = total / meses (el plazo llega en años, x 12)
 function calcularCuotaMensual(total, plazoAnios) {
-    // el plazo viene en años, lo paso a meses multiplicando por 12
     let plazoMeses = plazoAnios * 12;
     return total / plazoMeses;
 }
 
-// Compara capacidad de pago con la cuota.
-// Retorna true (aprobado) o false (rechazado), nunca un texto.
+// true = aprobado, false = rechazado.
+// CAMBIAR AQUÍ: la regla de aprobación (hoy: capacidad > cuota).
 function aprobarCredito(capacidadPago, cuotaMensual) {
     return capacidadPago > cuotaMensual;
 }

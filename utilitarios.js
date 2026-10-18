@@ -1,46 +1,45 @@
 // ============================================================
-// utilitarios.js
-// Mis funciones ayudantes para leer y mostrar datos del HTML
-// usando el id del componente, así no repito código.
+// utilitarios.js  –  ayudantes para leer y mostrar datos por id
+// ÍNDICE: recuperaraTexto, recuperarInt, recuperarFloat,
+//         mostrarTexto, mostrarTextoEnCaja, mostrarImagen
+// Si necesito un ayudante nuevo, lo agrego al final de este archivo.
 // ============================================================
 
-// Lee el texto escrito en una caja (input) y lo devuelve
+// LEER: texto de un input
 function recuperaraTexto(idComponente){
     let componente;
     let valorIngresado;
-    // getElementById busca en el HTML el elemento con ese id
     componente=document.getElementById(idComponente);
-    // .value es lo que escribió el usuario
     valorIngresado=componente.value;
     return valorIngresado;
     }
 
-    // Lee una caja y lo convierte a número entero
+    // LEER: input convertido a entero
     function recuperarInt(idComponente){
-        let valorCaja=recuperaraTexto(idComponente); // siempre llega como texto
-        let valorEntero=parseInt(valorCaja);         // texto -> entero
+        let valorCaja=recuperaraTexto(idComponente);
+        let valorEntero=parseInt(valorCaja);
         return valorEntero;
     }
-    // Lee una caja y lo convierte a número con decimales
+    // LEER: input convertido a decimal
     function recuperarFloat(idComponente){
         let valorCaja=recuperaraTexto(idComponente);
-        let valorFlotante=parseFloat(valorCaja);     // texto -> decimal
+        let valorFlotante=parseFloat(valorCaja);
         return valorFlotante;
     }
-    // Escribe un mensaje en un elemento que NO es input (p, span, div...)
+    // MOSTRAR: texto en un elemento que no es input (p, span, div)
     function mostrarTexto(idComponente,mensaje){
         let componente;
         componente=document.getElementById(idComponente);
         componente.innerText=mensaje;
     }
-    // Escribe un valor DENTRO de un input
+    // MOSTRAR: valor dentro de un input
     function mostrarTextoEnCaja(idComponente,mensaje){
         let componente;
         componente=document.getElementById(idComponente);
         componente.value=mensaje;
     }
 
-    // Cambia la imagen de un <img> con una nueva ruta
+    // MOSTRAR: cambia la imagen (src) de un <img>
     function mostrarImagen(idComponente,rutaImagen){
         let componente;
         componente=document.getElementById(idComponente);

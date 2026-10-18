@@ -8,18 +8,18 @@
 
 <header>
   <h1>Sistema Básico de Créditos</h1>
-   <!-- Estilos de la página -->
    <link rel="stylesheet" href="simulador_completo.css">
 </header>
 
-<!-- Menú: cada botón llama a mostrarSeccion con el id de la sección a mostrar -->
+<!-- MENÚ: un botón por sección. SI AGREGO SECCIÓN: botón aquí + <section> abajo
+     + línea en ocultarSecciones() del JS -->
 <nav>
   <button onclick="mostrarSeccion('parametros')">Parámetros</button>
   <button onclick="mostrarSeccion('clientes')">Clientes</button>
   <button onclick="mostrarSeccion('creditos')">Créditos</button>
 </nav>
 
-<!-- SECCIÓN 1: configurar la tasa de interés (entre 10 y 20, por defecto 15) -->
+<!-- ============ SECCIÓN: PARÁMETROS (tasa) ============ -->
 <section id="parametros">
   <h2>Configurar Parámetros</h2>
 
@@ -27,16 +27,15 @@
   <span>%</span>
   <br>
   <button onclick="guardarTasa()">Guardar tasa</button>
-  <!-- Aquí guardarTasa() escribe si la tasa es válida o no -->
-  <p id="mensajeTasa"></p>
+  <p id="mensajeTasa"></p> <!-- mensaje de guardarTasa() -->
 
 </section>
 
-<!-- SECCIÓN 2: registro de clientes -->
+<!-- ============ SECCIÓN: CLIENTES ============ -->
 <section id="clientes">
   <h2>Registro de Clientes</h2>
 
-  <!-- Cada input tiene id (para leerlo desde JS) y placeholder (texto de ayuda) -->
+  <!-- Formulario: cada id lo lee guardarCliente() -->
   <input type="text"   id="cedula"    placeholder="Cédula">
   <input type="text"   id="nombre"    placeholder="Nombre">
   <input type="text"   id="apellido"  placeholder="Apellido">
@@ -57,41 +56,40 @@
         <th>Acciones</th>
       </tr>
     </thead>
-    <!-- Vacío a propósito: pintarClientes() genera las filas desde JavaScript -->
+    <!-- vacío: las filas las genera pintarClientes() -->
     <tbody id="tablaClientes">
     </tbody>
   </table>
 </section>
 
-<!-- SECCIÓN 3: solicitar crédito (mismo id que usa el botón del menú: "creditos") -->
+<!-- ============ SECCIÓN: CRÉDITOS ============ -->
 <section id="creditos">
   <h2>Solicitar Crédito</h2>
 
-  <!-- Busco al cliente por cédula; sus datos aparecen en el div de abajo -->
+  <!-- 1) buscar cliente -> buscarClienteCredito() -->
   <input type="text" id="buscarCedulaCredito" placeholder="Cédula del cliente">
   <button onclick="buscarClienteCredito()">Buscar cliente</button>
 
-  <div id="datosClienteCredito" class="card"></div>
+  <div id="datosClienteCredito" class="card"></div> <!-- datos del cliente -->
 
-  <!-- Monto del crédito y plazo en AÑOS -->
+  <!-- 2) datos del crédito (plazo en AÑOS) -->
   <input type="number" id="montoCredito" placeholder="Monto del crédito">
   <input type="number" id="plazoCredito" placeholder="Plazo en años">
 
   <br>
 
+  <!-- 3) calcular -> calcularCredito() -->
   <button onclick="calcularCredito()">Calcular crédito</button>
 
-  <!-- Aquí se muestra capacidad de pago, total, cuota y si fue aprobado o rechazado -->
-  <div id="resultadoCredito"></div>
+  <div id="resultadoCredito"></div> <!-- resultado aprobado/rechazado -->
 
-  <!-- Este botón sigue desactivado: se usará en la siguiente parte del taller -->
+  <!-- desactivado: se usará en la siguiente parte -->
   <button id="btnSolicitarCredito" onclick="solicitarCredito()" disabled>
     Solicitar crédito
   </button>
 </section>
 
-
-<!-- Orden de scripts: primero las herramientas y los cálculos, al final la lógica que los usa -->
+<!-- Orden importante: utilitarios y funciones primero, la lógica al final -->
 <script src="utilitarios.js"></script>
 <script src="funciones.js"></script>
 <script src="simulador_completo.js"></script>

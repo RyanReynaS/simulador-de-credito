@@ -1,5 +1,8 @@
 
-    /* Fuente y fondo general de la página */
+    /* ÍNDICE: general, header, menú, secciones, formularios, tabla,
+       resultados (.aprobado/.rechazado), tarjeta (.card) */
+
+    /* ===== GENERAL ===== */
     body {
       font-family: Arial, sans-serif;
       background: #f4f6f9;
@@ -7,7 +10,7 @@
       padding: 0;
     }
 
-    /* Franja azul de arriba con el título */
+    /* ===== HEADER (franja azul; #1f3c88 es el color principal) ===== */
     header {
       background: #1f3c88;
       color: white;
@@ -15,7 +18,7 @@
       text-align: center;
     }
 
-    /* Menú de botones centrado */
+    /* ===== MENÚ ===== */
     nav {
       display: flex;
       justify-content: center;
@@ -25,7 +28,6 @@
       flex-wrap: wrap;
     }
 
-    /* Botones del menú */
     nav button {
       padding: 10px 15px;
       border: none;
@@ -35,12 +37,11 @@
       border-radius: 5px;
     }
 
-    /* Botón del menú más oscuro al pasar el mouse */
     nav button:hover {
       background: #14275c;
     }
 
-    /* Las secciones están ocultas por defecto... */
+    /* ===== SECCIONES: ocultas, solo se ve la que tiene la clase "activa" ===== */
     section {
       display: none;
       padding: 20px;
@@ -51,26 +52,24 @@
       border-radius: 8px;
     }
 
-    /* ...y solo se ve la que tenga la clase "activa" (la pone mostrarSeccion) */
     section.activa {
       display: block;
     }
 
-    /* Cajas de texto */
+    /* ===== FORMULARIOS ===== */
     input, select {
       padding: 8px;
       margin: 5px;
       width: 220px;
     }
 
-    /* Botones en general */
     button {
       padding: 8px 12px;
       margin: 5px;
       cursor: pointer;
     }
 
-    /* Tablas */
+    /* ===== TABLA ===== */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -83,13 +82,12 @@
       text-align: center;
     }
 
-    /* Encabezado de la tabla */
     th {
       background: #1f3c88;
       color: white;
     }
 
-    /* Crédito aprobado: fondo verde (lo aplica calcularCredito) */
+    /* ===== RESULTADO DEL CRÉDITO (los pone calcularCredito) ===== */
     .aprobado {
       background: #d4edda;
       color: #155724;
@@ -99,7 +97,6 @@
       margin-top: 15px;
     }
 
-    /* Crédito rechazado: fondo rojo (lo aplica calcularCredito) */
     .rechazado {
       background: #f8d7da;
       color: #721c24;
@@ -109,7 +106,7 @@
       margin-top: 15px;
     }
 
-    /* Tarjeta gris para mostrar los datos del cliente */
+    /* ===== TARJETA (datos del cliente en Créditos) ===== */
     .card {
       background: #f1f1f1;
       padding: 15px;

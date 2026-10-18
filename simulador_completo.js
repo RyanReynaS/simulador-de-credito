@@ -1,89 +1,92 @@
 // ============================================================
-// simulador_completo.js
-// Lógica de la página: navegación, tasa, clientes y créditos.
-// Usa utilitarios.js (leer/mostrar datos) y funciones.js (cálculos).
+// simulador_completo.js  –  lógica de la página
+// ÍNDICE (buscar con Ctrl+F el nombre en mayúsculas):
+//   1. VARIABLES GLOBALES
+//   2. NAVEGACIÓN      -> ocultarSecciones, mostrarSeccion
+//   3. TASA            -> guardarTasa
+//   4. CLIENTES        -> guardarCliente, pintarClientes, buscarCliente,
+//                         seleccionarCliente, limpiar
+//   5. CRÉDITOS        -> buscarClienteCredito, calcularCredito
+// Usa utilitarios.js (leer/mostrar) y funciones.js (cálculos).
 // ============================================================
 
-// ---------- VARIABLES GLOBALES (el estado de mi programa) ----------
-let clientes = [];              // arreglo con todos los clientes registrados
-let creditos = [];              // arreglo para los créditos (se usa en la siguiente parte)
+// ===================== 1. VARIABLES GLOBALES =====================
+let clientes = [];              // todos los clientes registrados
+let creditos = [];              // créditos (se usará en la siguiente parte)
 
-let tasaInteres = 15;           // tasa de interés actual (por defecto 15%)
-let clienteSeleccionado = null; // cliente que estoy editando o consultando (null = ninguno)
-let cuotaCalculada = 0;         // última cuota mensual calculada
+let tasaInteres = 15;           // tasa actual en % (valor inicial 15)
+let clienteSeleccionado = null; // cliente en uso (null = ninguno)
+let cuotaCalculada = 0;         // última cuota calculada
 let montoCalculado = 0;         // último monto calculado
-let plazoCalculado = 0;         // último plazo (en años) calculado
-let creditoAprobado = false;    // true si el último crédito calculado fue aprobado
+let plazoCalculado = 0;         // último plazo calculado (años)
+let creditoAprobado = false;    // resultado del último cálculo
 
-// ============================================================
-// PARTE 1: NAVEGACIÓN ENTRE SECCIONES
-// Solo se ve la sección que tenga la clase "activa" (lo define el CSS)
-// ============================================================
+// ===================== 2. NAVEGACIÓN =====================
 
-// Quita la clase "activa" a TODAS las secciones, o sea las oculta
+// Oculta todas las secciones.
+// SI AGREGO UNA SECCIÓN NUEVA: añadir aquí su línea remove.
 function ocultarSecciones(){
     document.getElementById("parametros").classList.remove("activa");
     document.getElementById("clientes").classList.remove("activa");
     document.getElementById("creditos").classList.remove("activa");
 }
 
-// Oculta todo y luego muestra solo la sección cuyo id recibo por parámetro
+// Muestra solo la sección con ese id (la que tenga la clase "activa")
 function mostrarSeccion(id){
     ocultarSecciones();
     document.getElementById(id).classList.add("activa");
 }
 
-// ============================================================
-// PARTE 2: CONFIGURAR LA TASA
-// ============================================================
+// ===================== 3. TASA =====================
 
-// Lee la tasa, valida que esté entre 10 y 20 y avisa con un mensaje
+// Valida la tasa y la guarda en tasaInteres.
+// CAMBIAR AQUÍ: los límites 10 y 20 (también min/max en el HTML).
 function guardarTasa(){
-    let tasa = recuperarFloat("tasaInteres");   // texto -> número
+    let tasa = recuperarFloat("tasaInteres");
     if (tasa >= 10 && tasa <= 20) {
-        tasaInteres = tasa;                      // la guardo en la variable global
+        tasaInteres = tasa;
         mostrarTexto("mensajeTasa", "Tasa configurada correctamente: " + tasa + "%");
     } else {
         mostrarTexto("mensajeTasa", "La tasa debe estar entre 10% y 20%");
     }
 }
 
-// ============================================================
-// PARTE 3: ADMINISTRACIÓN DE CLIENTES
-// ============================================================
+// ===================== 4. CLIENTES =====================
 
-// Crea un cliente nuevo si la cédula no existe; si existe, lo actualiza
+// Si la cédula no existe crea el cliente, si existe lo actualiza (menos la cédula).
+// SI AGREGO UN CAMPO NUEVO AL CLIENTE: ponerlo en las dos partes (crear y actualizar),
+// en pintarClientes, seleccionarCliente, limpiar y en el HTML.
 function guardarCliente(){
     let cedula = recuperaraTexto("cedula");
     let existente = buscarCliente(cedula);       // null si no existe
     if (existente == null) {
-        // NO existe -> armo un objeto cliente nuevo y lo agrego al arreglo
+        // CREAR
         let cliente = {};
         cliente.cedula   = cedula;
         cliente.nombre   = recuperaraTexto("nombre");
         cliente.apellido = recuperaraTexto("apellido");
-        cliente.ingresos = recuperarFloat("ingresos");  // números, no texto
+        cliente.ingresos = recuperarFloat("ingresos");
         cliente.egresos  = recuperarFloat("egresos");
         clientes.push(cliente);
     } else {
-        // SÍ existe -> actualizo todo MENOS la cédula (es su identificador)
+        // ACTUALIZAR
         existente.nombre   = recuperaraTexto("nombre");
         existente.apellido = recuperaraTexto("apellido");
         existente.ingresos = recuperarFloat("ingresos");
         existente.egresos  = recuperarFloat("egresos");
     }
-    pintarClientes();   // refresco la tabla
-    limpiar();          // dejo el formulario vacío
+    pintarClientes();
+    limpiar();
 }
 
-// Dibuja la tabla de clientes recorriendo el arreglo
+// Dibuja las filas de la tabla #tablaClientes.
+// CAMBIAR AQUÍ: columnas de la tabla o botones por fila (ej. Eliminar).
 function pintarClientes(){
     let tabla = document.getElementById("tablaClientes");
-    tabla.innerHTML = "";                        // vacío la tabla antes de pintar
+    tabla.innerHTML = "";                        // la vacío antes de pintar
     for (let i = 0; i < clientes.length; i++) {
         let c = clientes[i];
-        // una fila <tr> por cliente; el botón Actualizar manda la cédula a seleccionarCliente
-        // (comillas dobles escapadas \" y simples ' para el string anidado)
+        // el botón usa comillas anidadas: \" por fuera y ' por dentro
         tabla.innerHTML +=
             "<tr>" +
             "<td>" + c.cedula + "</td>" +
@@ -96,17 +99,17 @@ function pintarClientes(){
     }
 }
 
-// Busca un cliente por cédula: retorna el objeto si existe o null si no
+// Retorna el cliente con esa cédula, o null si no existe (la usan varias funciones)
 function buscarCliente(cedula){
     for (let i = 0; i < clientes.length; i++) {
         if (clientes[i].cedula == cedula) {
-            return clientes[i];      // lo encontré
+            return clientes[i];
         }
     }
-    return null;                     // no existe
+    return null;
 }
 
-// Busca al cliente, lo guarda en clienteSeleccionado y muestra sus datos en el formulario
+// Pasa los datos de un cliente al formulario para editarlo
 function seleccionarCliente(cedula){
     let c = buscarCliente(cedula);
     if (c != null) {
@@ -119,7 +122,7 @@ function seleccionarCliente(cedula){
     }
 }
 
-// Vacía todas las cajas del formulario de clientes
+// Vacía el formulario de clientes
 function limpiar(){
     mostrarTextoEnCaja("cedula", "");
     mostrarTextoEnCaja("nombre", "");
@@ -129,21 +132,17 @@ function limpiar(){
     clienteSeleccionado = null;
 }
 
-// ============================================================
-// TALLER PARTE 2: SECCIÓN CRÉDITOS
-// ============================================================
+// ===================== 5. CRÉDITOS =====================
 
-// Busca el cliente por la cédula escrita en la sección Créditos
-// y muestra todos sus datos dentro del div "datosClienteCredito"
+// Busca por cédula (caja buscarCedulaCredito) y muestra los datos en #datosClienteCredito.
+// CAMBIAR AQUÍ: qué datos del cliente se muestran.
 function buscarClienteCredito(){
-    let cedula = recuperaraTexto("buscarCedulaCredito");  // 1) tomo la cédula escrita
-    let cliente = buscarCliente(cedula);                  // 2) la busco en el arreglo
+    let cedula = recuperaraTexto("buscarCedulaCredito");
+    let cliente = buscarCliente(cedula);
     let datos = document.getElementById("datosClienteCredito");
 
     if (cliente != null) {
-        // 3) SÍ existe: lo guardo como cliente seleccionado para poder calcular su crédito
-        clienteSeleccionado = cliente;
-        // armo el HTML con template string (comillas invertidas ` `) y ${...} para meter los valores
+        clienteSeleccionado = cliente;           // lo uso luego en calcularCredito
         datos.innerHTML = `
             <h3>Datos del Cliente</h3>
             <p><strong>Cédula:</strong> ${cliente.cedula}</p>
@@ -153,60 +152,60 @@ function buscarClienteCredito(){
             <p><strong>Egresos:</strong> ${cliente.egresos}</p>
         `;
     } else {
-        // 4) NO existe: aviso y me aseguro de no dejar a nadie seleccionado
         clienteSeleccionado = null;
         datos.innerHTML = "<p>Cliente no encontrado</p>";
     }
 }
 
-// Calcula el crédito del cliente buscado, reutilizando las funciones de funciones.js,
-// y muestra el resultado (aprobado o rechazado) en el div "resultadoCredito"
+// Calcula el crédito y muestra el resultado en #resultadoCredito.
+// Orden: validar -> calcular (funciones.js) -> guardar en globales -> mostrar.
+// CAMBIAR AQUÍ: validaciones, o qué líneas se muestran en el resultado.
 function calcularCredito(){
     let resultado = document.getElementById("resultadoCredito");
 
-    // Primero necesito un cliente buscado; si no hay, aviso y salgo de la función
+    // Validación 1: tiene que haber un cliente buscado
     if (clienteSeleccionado == null) {
         resultado.className = "rechazado";
         resultado.innerHTML = "Primero busque un cliente por su cédula";
         return;
     }
 
-    // Leo el monto y el plazo (en años) que escribió el usuario
+    // Datos ingresados (el plazo va en AÑOS)
     let monto = recuperarFloat("montoCredito");
     let plazo = recuperarFloat("plazoCredito");
 
-    // Valido que sean números mayores que cero (isNaN = "no es un número")
+    // Validación 2: monto y plazo deben ser números mayores a cero
     if (isNaN(monto) || isNaN(plazo) || monto <= 0 || plazo <= 0) {
         resultado.className = "rechazado";
         resultado.innerHTML = "Ingrese un monto y un plazo válidos";
         return;
     }
 
-    // ---- Cálculos, en el mismo orden del simulador anterior ----
+    // Cálculos (funciones.js)
     let disponible = calcularDisponible(clienteSeleccionado.ingresos, clienteSeleccionado.egresos);
     let capacidadPago = calcularCapacidadPago(disponible);
-    let interes = calcularInteresSimple(monto, tasaInteres, plazo);   // uso la tasa configurada
+    let interes = calcularInteresSimple(monto, tasaInteres, plazo);
     let totalPagar = calcularTotalPagar(monto, interes);
     let cuotaMensual = calcularCuotaMensual(totalPagar, plazo);
-    let aprobado = aprobarCredito(capacidadPago, cuotaMensual);       // true o false
+    let aprobado = aprobarCredito(capacidadPago, cuotaMensual);   // true/false
 
-    // Guardo los resultados en las variables globales por si los necesito después
+    // Guardo en las globales
     montoCalculado = monto;
     plazoCalculado = plazo;
     cuotaCalculada = cuotaMensual;
     creditoAprobado = aprobado;
 
-    // Decido el texto y la clase de estilo según el resultado
+    // Texto y estilo según el resultado (clases .aprobado / .rechazado del CSS)
     let textoResultado;
     if (aprobado) {
         textoResultado = "APROBADO";
-        resultado.className = "aprobado";    // verde (definido en el CSS)
+        resultado.className = "aprobado";
     } else {
         textoResultado = "RECHAZADO";
-        resultado.className = "rechazado";   // rojo (definido en el CSS)
+        resultado.className = "rechazado";
     }
 
-    // Muestro todo; <br> hace el salto de línea y toFixed(2) deja 2 decimales
+    // <br> = salto de línea, toFixed(2) = 2 decimales
     resultado.innerHTML = `
         Capacidad de pago: ${capacidadPago.toFixed(2)}<br>
         Total a pagar: ${totalPagar.toFixed(2)}<br>
