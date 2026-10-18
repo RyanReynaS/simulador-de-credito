@@ -35,14 +35,26 @@ function guardarTasa(){
 }
 
 function guardarCliente(){
-    let cliente = {};
-    cliente.cedula   = recuperaraTexto("cedula");
-    cliente.nombre   = recuperaraTexto("nombre");
-    cliente.apellido = recuperaraTexto("apellido");
-    cliente.ingresos = recuperarFloat("ingresos");   // números
-    cliente.egresos  = recuperarFloat("egresos");
-    clientes.push(cliente);                          // lo agrego al arreglo
-    pintarClientes();                                // repinto la tabla
+    let cedula = recuperaraTexto("cedula");
+    let existente = buscarCliente(cedula);
+    if (existente == null) {
+        // NO existe -> creo uno nuevo
+        let cliente = {};
+        cliente.cedula   = cedula;
+        cliente.nombre   = recuperaraTexto("nombre");
+        cliente.apellido = recuperaraTexto("apellido");
+        cliente.ingresos = recuperarFloat("ingresos");
+        cliente.egresos  = recuperarFloat("egresos");
+        clientes.push(cliente);
+    } else {
+        // SÍ existe -> actualizo todo MENOS la cédula
+        existente.nombre   = recuperaraTexto("nombre");
+        existente.apellido = recuperaraTexto("apellido");
+        existente.ingresos = recuperarFloat("ingresos");
+        existente.egresos  = recuperarFloat("egresos");
+    }
+    pintarClientes();
+    limpiar();
 }
 function pintarClientes(){
     let tabla = document.getElementById("tablaClientes");
@@ -59,4 +71,32 @@ function pintarClientes(){
             "<td><button onclick=\"seleccionarCliente('" + c.cedula + "')\">Actualizar</button></td>" +
             "</tr>";
     }
+}
+function buscarCliente(cedula){
+    for (let i = 0; i < clientes.length; i++) {
+        if (clientes[i].cedula == cedula) {
+            return clientes[i];      // lo encontré
+        }
+    }
+    return null;                     // no existe
+}
+function seleccionarCliente(cedula){
+    let c = buscarCliente(cedula);
+    if (c != null) {
+        clienteSeleccionado = c;                     // lo guardo para actualizarlo
+        mostrarTextoEnCaja("cedula", c.cedula);
+        mostrarTextoEnCaja("nombre", c.nombre);
+        mostrarTextoEnCaja("apellido", c.apellido);
+        mostrarTextoEnCaja("ingresos", c.ingresos);
+        mostrarTextoEnCaja("egresos", c.egresos);
+    }
+}
+
+function limpiar(){
+    mostrarTextoEnCaja("cedula", "");
+    mostrarTextoEnCaja("nombre", "");
+    mostrarTextoEnCaja("apellido", "");
+    mostrarTextoEnCaja("ingresos", "");
+    mostrarTextoEnCaja("egresos", "");
+    clienteSeleccionado = null;
 }
