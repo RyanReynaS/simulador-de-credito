@@ -6,13 +6,14 @@
 //   3. TASA            -> guardarTasa
 //   4. CLIENTES        -> guardarCliente, pintarClientes, buscarCliente,
 //                         seleccionarCliente, limpiar
-//   5. CRÉDITOS        -> buscarClienteCredito, calcularCredito
+//   5. CRÉDITOS        -> buscarClienteCredito, calcularCredito, asignarCredito
+//   6. HISTORIAL       -> buscarCreditos, pintarCreditos, buscarCreditosCliente
 // Usa utilitarios.js (leer/mostrar) y funciones.js (cálculos).
 // ============================================================
 
 // ===================== 1. VARIABLES GLOBALES =====================
 let clientes = [];              // todos los clientes registrados
-let creditos = [];              // créditos (se usará en la siguiente parte)
+let creditos = [];              // créditos asignados (el historial)
 
 let tasaInteres = 15;           // tasa actual en % (valor inicial 15)
 let clienteSeleccionado = null; // cliente en uso (null = ninguno)
@@ -29,6 +30,7 @@ function ocultarSecciones(){
     document.getElementById("parametros").classList.remove("activa");
     document.getElementById("clientes").classList.remove("activa");
     document.getElementById("creditos").classList.remove("activa");
+    document.getElementById("listaCreditos").classList.remove("activa");
 }
 
 // Muestra solo la sección con ese id (la que tenga la clase "activa")
@@ -134,12 +136,24 @@ function limpiar(){
 
 // ===================== 5. CRÉDITOS =====================
 
+// Activa o desactiva el botón "Asignar Crédito".
+// Lo uso en varios lugares para no repetir el código.
+function habilitarBotonAsignar(habilitar){
+    document.getElementById("btnAsignarCredito").disabled = !habilitar;
+}
+
 // Busca por cédula (caja buscarCedulaCredito) y muestra los datos en #datosClienteCredito.
 // CAMBIAR AQUÍ: qué datos del cliente se muestran.
 function buscarClienteCredito(){
     let cedula = recuperaraTexto("buscarCedulaCredito");
     let cliente = buscarCliente(cedula);
     let datos = document.getElementById("datosClienteCredito");
+
+    // Cada vez que busco, borro el cálculo anterior para no asignar un crédito de otro cliente
+    creditoAprobado = false;
+    habilitarBotonAsignar(false);
+    document.getElementById("resultadoCredito").innerHTML = "";
+    document.getElementById("resultadoCredito").className = "";
 
     if (cliente != null) {
         clienteSeleccionado = cliente;           // lo uso luego en calcularCredito
@@ -158,10 +172,14 @@ function buscarClienteCredito(){
 }
 
 // Calcula el crédito y muestra el resultado en #resultadoCredito.
-// Orden: validar -> calcular (funciones.js) -> guardar en globales -> mostrar.
+// Orden: validar -> calcular (funciones.js) -> guardar en globales -> mostrar -> botón Asignar.
 // CAMBIAR AQUÍ: validaciones, o qué líneas se muestran en el resultado.
 function calcularCredito(){
     let resultado = document.getElementById("resultadoCredito");
+
+    // Mientras no haya un cálculo válido y aprobado, el botón Asignar queda desactivado
+    creditoAprobado = false;
+    habilitarBotonAsignar(false);
 
     // Validación 1: tiene que haber un cliente buscado
     if (clienteSeleccionado == null) {
@@ -189,7 +207,7 @@ function calcularCredito(){
     let cuotaMensual = calcularCuotaMensual(totalPagar, plazo);
     let aprobado = aprobarCredito(capacidadPago, cuotaMensual);   // true/false
 
-    // Guardo en las globales
+    // Guardo en las globales (asignarCredito las usa después)
     montoCalculado = monto;
     plazoCalculado = plazo;
     cuotaCalculada = cuotaMensual;
@@ -212,4 +230,80 @@ function calcularCredito(){
         Cuota mensual: ${cuotaMensual.toFixed(2)}<br>
         RESULTADO: ${textoResultado}
     `;
+
+    // Regla del taller: aprobado -> botón habilitado, rechazado -> sigue deshabilitado
+    habilitarBotonAsignar(aprobado);
+}
+
+// Botón "Asignar Crédito": guarda el crédito aprobado en el arreglo creditos.
+// SI AGREGO UN DATO NUEVO AL CRÉDITO: ponerlo en el objeto de abajo, en pintarCreditos
+// y en el <thead> de la tabla del HTML.
+function asignarCredito(){
+    // Seguridad: solo se asigna si hay cliente y el último cálculo fue aprobado
+    if (clienteSeleccionado == null || creditoAprobado == false) {
+        return;
+    }
+
+    // Objeto con la estructura que pide el taller
+    let credito = {
+        cedula: clienteSeleccionado.cedula,
+        nombre: clienteSeleccionado.nombre,
+        apellido: clienteSeleccionado.apellido,
+        monto: montoCalculado,
+        tasa: tasaInteres,
+        plazo: plazoCalculado,    // (en el PDF se llama plazoIngresado; aquí uso mi variable plazoCalculado)
+        cuota: cuotaCalculada
+    };
+
+    creditos.push(credito);        // lo agrego al arreglo de créditos
+    habilitarBotonAsignar(false);  // lo desactivo para no asignar dos veces el mismo cálculo
+    creditoAprobado = false;
+    alert("Crédito asignado correctamente");
+}
+
+// ===================== 6. HISTORIAL DE CRÉDITOS =====================
+
+// Retorna un arreglo con todos los créditos de esa cédula (vacío si no tiene)
+function buscarCreditos(cedula){
+    let encontrados = [];
+    for (let i = 0; i < creditos.length; i++) {
+        if (creditos[i].cedula == cedula) {
+            encontrados.push(creditos[i]);
+        }
+    }
+    return encontrados;
+}
+
+// Dibuja en #tablaCreditos los créditos del arreglo que reciba por parámetro.
+// CAMBIAR AQUÍ: columnas (deben coincidir con el <thead> del HTML).
+function pintarCreditos(lista){
+    let tabla = document.getElementById("tablaCreditos");
+    tabla.innerHTML = "";                        // vacío la tabla antes de pintar
+
+    // Si no hay nada que mostrar, aviso con una sola fila (colspan 7 = ocupa las 7 columnas)
+    if (lista.length == 0) {
+        tabla.innerHTML = "<tr><td colspan=\"7\">No hay créditos registrados</td></tr>";
+        return;
+    }
+
+    for (let i = 0; i < lista.length; i++) {
+        let c = lista[i];
+        tabla.innerHTML +=
+            "<tr>" +
+            "<td>" + c.cedula + "</td>" +
+            "<td>" + c.nombre + "</td>" +
+            "<td>" + c.apellido + "</td>" +
+            "<td>" + c.monto + "</td>" +
+            "<td>" + c.tasa + "%</td>" +
+            "<td>" + c.plazo + (c.plazo == 1 ? " año" : " años") + "</td>" +   // singular si es 1
+            "<td>" + c.cuota.toFixed(2) + "</td>" +
+            "</tr>";
+    }
+}
+
+// Botón "Buscar" del historial: lee la cédula, busca sus créditos y los pinta
+function buscarCreditosCliente(){
+    let cedula = recuperaraTexto("buscarCedulaListado");
+    let encontrados = buscarCreditos(cedula);
+    pintarCreditos(encontrados);
 }

@@ -17,6 +17,8 @@
   <button onclick="mostrarSeccion('parametros')">Parámetros</button>
   <button onclick="mostrarSeccion('clientes')">Clientes</button>
   <button onclick="mostrarSeccion('creditos')">Créditos</button>
+  <!-- además de mostrar la sección, pinta todos los créditos registrados -->
+  <button onclick="mostrarSeccion('listaCreditos'); pintarCreditos(creditos);">Créditos Registrados</button>
 </nav>
 
 <!-- ============ SECCIÓN: PARÁMETROS (tasa) ============ -->
@@ -83,10 +85,38 @@
 
   <div id="resultadoCredito"></div> <!-- resultado aprobado/rechazado -->
 
-  <!-- desactivado: se usará en la siguiente parte -->
-  <button id="btnSolicitarCredito" onclick="solicitarCredito()" disabled>
-    Solicitar crédito
+  <!-- 4) Asignar Crédito: empieza desactivado, calcularCredito() lo activa
+        solo si el crédito fue aprobado. Al presionarlo, asignarCredito() lo guarda -->
+  <button id="btnAsignarCredito" onclick="asignarCredito()" disabled>
+    Asignar Crédito
   </button>
+</section>
+
+<!-- ============ SECCIÓN: CRÉDITOS REGISTRADOS (historial) ============ -->
+<section id="listaCreditos">
+  <h2>Créditos Registrados</h2>
+
+  <!-- Buscar -> buscarCreditosCliente() (un cliente). Ver todos -> pintarCreditos(creditos) -->
+  <input type="text" id="buscarCedulaListado" placeholder="Cédula del cliente">
+  <button onclick="buscarCreditosCliente()">Buscar</button>
+  <button onclick="pintarCreditos(creditos)">Ver todos</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Cédula</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Monto</th>
+        <th>Tasa</th>
+        <th>Plazo</th>
+        <th>Cuota</th>
+      </tr>
+    </thead>
+    <!-- vacío: las filas las genera pintarCreditos() -->
+    <tbody id="tablaCreditos">
+    </tbody>
+  </table>
 </section>
 
 <!-- Orden importante: utilitarios y funciones primero, la lógica al final -->
