@@ -11,3 +11,16 @@
 
   
 //Para recuperar o mostrar información usar los métodos de la clase utilitarios, puede agregar métodos adicionales en utilitarios
+
+// Quita la clase "activa" a TODAS las secciones (las oculta)
+function ocultarSecciones(){
+    document.getElementById("parametros").classList.remove("activa");
+    document.getElementById("clientes").classList.remove("activa");
+    // cuando existan, también: "credito" y "listaCreditos"
+}
+
+// Oculta todo y muestra solo la sección cuyo id recibo
+function mostrarSeccion(id){
+    ocultarSecciones();
+    document.getElementById(id).classList.add("activa");
+}
