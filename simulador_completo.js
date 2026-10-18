@@ -8,6 +8,7 @@
 //                         seleccionarCliente, limpiar
 //   5. CRÉDITOS        -> buscarClienteCredito, calcularCredito, asignarCredito
 //   6. HISTORIAL       -> buscarCreditos, pintarCreditos, buscarCreditosCliente
+//   7. GUARDADO (EXTRA)-> guardarDatos, cargarDatos (para que no se pierdan al recargar)
 // Usa utilitarios.js (leer/mostrar) y funciones.js (cálculos).
 // ============================================================
 
@@ -47,6 +48,7 @@ function guardarTasa(){
     let tasa = recuperarFloat("tasaInteres");
     if (tasa >= 10 && tasa <= 20) {
         tasaInteres = tasa;
+        guardarDatos();                          // EXTRA: guardo en el navegador
         mostrarTexto("mensajeTasa", "Tasa configurada correctamente: " + tasa + "%");
     } else {
         mostrarTexto("mensajeTasa", "La tasa debe estar entre 10% y 20%");
@@ -78,6 +80,7 @@ function guardarCliente(){
         existente.egresos  = recuperarFloat("egresos");
     }
     pintarClientes();
+    guardarDatos();     // EXTRA: guardo en el navegador (clientes)
     limpiar();
 }
 
@@ -256,6 +259,7 @@ function asignarCredito(){
     };
 
     creditos.push(credito);        // lo agrego al arreglo de créditos
+    guardarDatos();                // EXTRA: guardo en el navegador
     habilitarBotonAsignar(false);  // lo desactivo para no asignar dos veces el mismo cálculo
     creditoAprobado = false;
     alert("Crédito asignado correctamente");
@@ -307,3 +311,41 @@ function buscarCreditosCliente(){
     let encontrados = buscarCreditos(cedula);
     pintarCreditos(encontrados);
 }
+
+// ===================== 7. GUARDADO (EXTRA) =====================
+// EXTRA: esto NO lo pide el taller. Sin esto, al recargar la página
+// (o cuando Live Server la recarga solo al guardar un archivo) los arreglos
+// se vacían. Aquí los guardo en el navegador (localStorage) para poder probar.
+// PARA QUITARLO: borrar esta sección, las líneas "guardarDatos();" de arriba
+// y el "cargarDatos();" del final.
+
+// Guarda clientes, créditos y tasa en el navegador
+function guardarDatos(){
+    try {
+        localStorage.setItem("clientes", JSON.stringify(clientes));   // arreglo -> texto
+        localStorage.setItem("creditos", JSON.stringify(creditos));
+        localStorage.setItem("tasaInteres", tasaInteres);
+    } catch (e) {
+        // si el navegador no deja guardar, la página sigue funcionando sin guardar
+    }
+}
+
+// Recupera lo guardado y repinta la tabla de clientes (se llama al abrir la página)
+function cargarDatos(){
+    try {
+        clientes = JSON.parse(localStorage.getItem("clientes")) || [];   // texto -> arreglo
+        creditos = JSON.parse(localStorage.getItem("creditos")) || [];
+        let tasaGuardada = parseFloat(localStorage.getItem("tasaInteres"));
+        if (!isNaN(tasaGuardada)) {
+            tasaInteres = tasaGuardada;
+            mostrarTextoEnCaja("tasaInteres", tasaGuardada);
+        }
+    } catch (e) {
+        clientes = [];
+        creditos = [];
+    }
+    pintarClientes();
+}
+
+// Se ejecuta una vez al abrir la página (el script está al final del HTML)
+cargarDatos();
